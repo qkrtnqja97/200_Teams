@@ -1,0 +1,50 @@
+## ./infra/observabiliy/promtail/confg.yml
+
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: /tmp/positions.yml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: docker-containers
+    docker_sd_configs:
+      - host: unix:///var/run/docker.sock
+        refresh_interval: 5s
+
+    relabel_configs:
+      - source_labels: ['__meta_docker_container_name']
+        regex: '/(.*)'
+        target_label: 'container'
+
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_service']
+        target_label: 'service'
+
+      - source_labels: ['__meta_docker_container_label_com_docker_compose_project']
+        target_label: 'project'
+
+      - source_labels: ['__meta_docker_container_id']
+        regex: '(.+)'
+        target_label: '__path__'
+        replacement: /var/lib/docker/containers/$1/$1-json.log
+
+    pipeline_stages:
+      # docker json-file에서 log/time 추출 (필수)
+      - docker: {}
+
+      # ✅ nginx 로그만 추가 파싱해서 라벨 생성
+      - match:
+          selector: '{service="nginx"}'
+          stages:
+            - regex:
+                expression: 'uri="(?P<uri>[^"]+)".*status=(?P<status>\d{3}).*upstream_addr="(?P<upstream_addr>[^"]*)".*upstream_status="(?P<upstream_status>\d{3})"'
+            - labels:
+                status:
+                upstream_addr:
+                upstream_status:
+                uri:
+                
