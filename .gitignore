@@ -122,3 +122,12 @@ htmlcov/
 
 # ===== OS =====
 .DS_Store
+
+# ===== Observability =====
+infra/observability/**/data/
+infra/observability/**/grafana.db
+infra/observability/**/plugins/
+infra/observability/**/wal/
+infra/observability/**/chunks/
+infra/observability/**/index/
+infra/observability/**/positions.yml
