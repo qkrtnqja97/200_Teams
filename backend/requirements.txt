@@ -38,4 +38,3 @@ python-jose[cryptography]==3.3.0
 # File Uploads
 # ===============================
 python-multipart==0.0.20
-

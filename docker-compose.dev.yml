@@ -1,15 +1,15 @@
-version: "3.8"
+version: '3.8'
 
 services:
   nginx:
     image: nginx:1.27-alpine
     container_name: nginx
     ports:
-      - "80:80"
+      - '80:80'
     volumes:
       - ./infra/nginx/local.conf:/etc/nginx/conf.d/default.conf:ro
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - 'host.docker.internal:host-gateway'
     depends_on:
       - backend
       - ml
@@ -24,22 +24,26 @@ services:
       ML_BASE_URL: http://ml:9000
       DB_HOST: mysql
     ports:
-      - "8000:8000"
+      - '8000:8000'
     volumes:
       - ./backend:/backendWorkspace
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload    # dev 환경에서만 프로세스 재시작할래.
+      - ./backend/data:/backend/data # <- backend/data 마운트 추가
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
     depends_on:
       - ml
       - mysql
 
   ml:
+    platform: linux/amd64
     build:
       context: ./ml
     container_name: ml
     ports:
-      - "9000:9000"
+      - '9000:9000'
     volumes:
       - ./ml:/mlWorkspace
+      - ./backend/data:/mlWorkspace/data # <- 같은 데이터 공유
+      # 필요시 ML 환경변수 추가
 
   mysql:
     image: mysql:8.0
@@ -47,7 +51,7 @@ services:
     env_file:
       - ./backend/.env
     ports:
-      - "3306:3306"
+      - '3306:3306'
     volumes:
       - mysql_data:/var/lib/mysql
 
