@@ -1,5 +1,3 @@
-# backend/app/battery/schemas.py
-
 from pydantic import BaseModel, Field
 from typing import Dict
 from datetime import datetime
@@ -33,25 +31,25 @@ class BatteryCycleResponse(BaseModel):
     id: int
     battery_id: int
     cycle_index: int
-    features: Dict[str, float]
+    features: dict
     created_at: datetime
 
     class Config:
         from_attributes = True
 
 
-# --------------------
-# Battery RUL (Response)
-# --------------------
+# --- Battery RUL (일회성) ---
+class RULCreateRequest(BaseModel):
+    rul: float = Field(..., ge=0.0, le=1.0)
+
+
 class RULCheckResponse(BaseModel):
     battery_id: int
-    rul: float = Field(..., ge=0.0, le=1.0)
+    rul: float
     rul_status: int
 
 
-# --------------------
-# Battery File Upload
-# --------------------
+# --- Battery File Upload ---
 class BatteryFileUploadResponse(BaseModel):
     id: int
     battery_id: int
@@ -62,4 +60,4 @@ class BatteryFileUploadResponse(BaseModel):
     uploaded_at: datetime
 
     class Config:
-        from_attributes = True
+        from_attributes = True  # pydantic v2

@@ -24,7 +24,7 @@ export default async function DashboardPage() {
   return (
     <div className='space-y-6 pt-6'>
       {/* 알림 카드 */}
-      <AlertCard message={alert.message} />
+      {/* <AlertCard message={alert.message} /> */}
       <BatteryListSection batteryList={batteryList} />
       <AddBatteryButton />
     </div>
